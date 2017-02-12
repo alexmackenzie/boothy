@@ -1,0 +1,14 @@
+# Ignore generated .class files.
+/bin/
+
+# Ignore Eclipse files.
+.project
+.classpath
+/.settings/
+
+# Ignore LWJGL.
+lwjgl.jar
+natives
+
+# Ignore test files.
+/src/net/alexmack/boothy/testing/
