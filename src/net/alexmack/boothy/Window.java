@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
@@ -17,6 +16,7 @@ public class Window {
 	private Thread thread = null;
 	private boolean running = true;
 	private Renderer renderer = null;
+	private Resolution resolution = null;
 	
 	private int fps = 60;
 	private int width = 400, height = 400;
@@ -25,7 +25,11 @@ public class Window {
 	
 	private List<Runnable> queue = Collections.synchronizedList(new ArrayList<Runnable>());
 	
-	public Window(Renderer renderer) {
+	public Window(Resolution resolution, Renderer renderer) {
+		this.resolution = resolution;
+		this.width = resolution.getWidth();
+		this.height = resolution.getHeight();
+		
 		// Create and run the Window thread.
 		thread = new Thread(new Runnable() {
 			
@@ -51,15 +55,27 @@ public class Window {
 	private void run() throws LWJGLException {
 		Boothy.log(Boothy.LOG_INFO, "Started rendering in \"" + Thread.currentThread().getName() + "\"!");
 		
-		// Setup the display.
-		Display.setDisplayMode(new DisplayMode(width, height));
+		// Setup the display according to the resolution given.
+		Display.setDisplayMode(resolution.getMode());
+		if (resolution.isFullscreenDefault()) {
+			Boothy.log(Boothy.LOG_INFO, "Defaulting to fullscreen mode...");
+			Display.setFullscreen(true);
+		}
+		
+		// Setup some basic properties.
 		Display.setTitle(Boothy.NAME);
 		Display.setResizable(true);
+		
+		Boothy.log(Boothy.LOG_INFO, "Creating display using resolution \"" + resolution.toString() + "\"...");
 		
 		// Create a display with the default PixelFormat.
 		Display.create(new PixelFormat());
 		
 		while (running = (running && !Display.isCloseRequested())) {
+			// Run any queued tasks.
+			while (!queue.isEmpty())
+				queue.remove(0).run();
+			
 			setupMatrix();
 			
 			// Clear the color buffer. We won't clear the depth buffer as Boothy isn't meant for 3D.
@@ -75,10 +91,6 @@ public class Window {
 			
 			frame++;
 			Display.update();
-			
-			// Run any queued tasks.
-			while (!queue.isEmpty())
-				queue.remove(0).run();
 			
 			Display.sync(fps);
 		}
@@ -112,6 +124,55 @@ public class Window {
 		
 		if (renderer != null)
 			Boothy.log(Boothy.LOG_DEBUG, "Renderer: " + renderer.getClass().getName());
+	}
+	
+	public boolean setFullscreen(final boolean fullscreen) {
+		if (!Display.getDisplayMode().isFullscreenCapable())
+			return false;
+		
+		queue(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Display.setFullscreen(fullscreen);
+				}catch (LWJGLException e) {
+					Boothy.log(Boothy.LOG_ERROR, "Failed to change fullscreen status!");
+				}
+			}
+			
+		});
+		return true;
+	}
+	
+	public void setTitle(final String title) {
+		queue(new Runnable() {
+			
+			@Override
+			public void run() {
+				Display.setTitle(title);
+			}
+			
+		});
+	}
+	
+	public void setResolution(final Resolution resolution) {
+		queue(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Window.this.resolution = resolution;
+					Display.setDisplayMode(resolution.getMode());
+					setFullscreen(resolution.isFullscreenDefault());
+					
+					Boothy.log(Boothy.LOG_INFO, "Changed resolution to \"" + resolution.toString() + "\".");
+				}catch (LWJGLException e) {
+					Boothy.log(Boothy.LOG_ERROR, "Failed to change resolution!");
+				}
+			}
+			
+		});
 	}
 	
 	public int getWidth() {
