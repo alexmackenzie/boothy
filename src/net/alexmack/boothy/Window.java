@@ -140,7 +140,8 @@ public class Window {
 				}
 			}
 			
-			Display.sync(fps);
+			if (fps > 0)
+				Display.sync(fps);
 		}
 	}
 	
@@ -231,6 +232,10 @@ public class Window {
 		keyboardHandler = handler;
 	}
 	
+	public void setFps(int fps) {
+		this.fps = fps;
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -241,6 +246,10 @@ public class Window {
 	
 	public long getFrame() {
 		return frame;
+	}
+	
+	public int getFps() {
+		return fps > 0 ? fps : Integer.MAX_VALUE;
 	}
 	
 }
