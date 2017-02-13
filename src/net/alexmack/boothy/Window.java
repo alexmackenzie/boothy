@@ -4,14 +4,21 @@
 package net.alexmack.boothy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
+import net.alexmack.boothy.input.KeyboardEvent;
+import net.alexmack.boothy.input.KeyboardHandler;
+
 public class Window {
+	
+	private static final long NODATA = Long.MIN_VALUE;
 	
 	private Thread thread = null;
 	private boolean running = true;
@@ -21,6 +28,10 @@ public class Window {
 	private int fps = 60;
 	private int width = 400, height = 400;
 	
+	private long[] keyboard = new long[Keyboard.KEYBOARD_SIZE];
+	private char[] keyboardChars = new char[keyboard.length];
+	private KeyboardHandler keyboardHandler = null;
+	
 	private volatile long frame = 0;
 	
 	private List<Runnable> queue = Collections.synchronizedList(new ArrayList<Runnable>());
@@ -29,6 +40,9 @@ public class Window {
 		this.resolution = resolution;
 		this.width = resolution.getWidth();
 		this.height = resolution.getHeight();
+		
+		// Put the NODATA value into the keyboard array.
+		Arrays.fill(keyboard, NODATA);
 		
 		// Create and run the Window thread.
 		thread = new Thread(new Runnable() {
@@ -70,8 +84,12 @@ public class Window {
 		
 		// Create a display with the default PixelFormat.
 		Display.create(new PixelFormat());
+		// Create the keyboard.
+		Keyboard.create();
 		
 		while (running = (running && !Display.isCloseRequested())) {
+			long now = System.currentTimeMillis();
+			
 			// Run any queued tasks.
 			while (!queue.isEmpty())
 				queue.remove(0).run();
@@ -91,6 +109,36 @@ public class Window {
 			
 			frame++;
 			Display.update();
+			
+			// Dispatch keyboard events.
+			while (Keyboard.next()) {
+				// Don't process events if there's no handler.
+				if (keyboardHandler == null)
+					continue;
+				
+				int key = Keyboard.getEventKey();
+				
+				// The key state is true if the key is down.
+				if (Keyboard.getEventKeyState()) {
+					char character = Keyboard.getEventCharacter();
+					
+					// Store timestamp in the keyboard array and fire event.
+					keyboard[key] = now;
+					keyboardChars[key] = character;
+					keyboardHandler.onKeyDown(new KeyboardEvent(key, character, NODATA));
+				}else{
+					// Fire the standard key up event.
+					keyboardHandler.onKeyUp(new KeyboardEvent(key, keyboardChars[key], NODATA));
+					
+					// Fire pressed event if necessary.
+					long data = keyboard[key];
+					if (data != NODATA)
+						keyboardHandler.onKeyPressed(new KeyboardEvent(key, keyboardChars[key], now - data));
+					
+					// Reset keyboard array.
+					keyboard[key] = NODATA;
+				}
+			}
 			
 			Display.sync(fps);
 		}
@@ -117,6 +165,10 @@ public class Window {
 	 */
 	public void queue(Runnable runnable) {
 		queue.add(runnable);
+	}
+	
+	public void close() {
+		running = false;
 	}
 	
 	public void setRenderer(Renderer renderer) {
@@ -173,6 +225,10 @@ public class Window {
 			}
 			
 		});
+	}
+	
+	public void setKeyboardHandler(KeyboardHandler handler) {
+		keyboardHandler = handler;
 	}
 	
 	public int getWidth() {
