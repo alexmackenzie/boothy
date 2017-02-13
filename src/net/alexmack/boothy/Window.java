@@ -19,7 +19,7 @@ public class Window {
 	private Renderer renderer = null;
 	
 	private int fps = 60;
-	private int width = 0, height = 0;
+	private int width = 400, height = 400;
 	
 	private volatile long frame = 0;
 	
@@ -52,15 +52,12 @@ public class Window {
 		Boothy.log(Boothy.LOG_INFO, "Started rendering in \"" + Thread.currentThread().getName() + "\"!");
 		
 		// Setup the display.
-		Display.setDisplayMode(new DisplayMode(400, 400));
+		Display.setDisplayMode(new DisplayMode(width, height));
 		Display.setTitle(Boothy.NAME);
 		Display.setResizable(true);
 		
 		// Create a display with the default PixelFormat.
 		Display.create(new PixelFormat());
-		
-		// Enable 2D textures.
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		while (running = (running && !Display.isCloseRequested())) {
 			setupMatrix();
@@ -91,7 +88,11 @@ public class Window {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, width = Display.getWidth(), height = Display.getHeight(), 0, -1, 1);
+		GL11.glViewport(0, 0, width, height);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+
+		// Enable 2D textures.
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		// Default scaling.
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
