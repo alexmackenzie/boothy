@@ -152,8 +152,11 @@ public class Window {
 		GL11.glViewport(0, 0, width, height);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		
 		// Enable 2D textures.
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
 		
 		// Default nearest neighbour scaling.
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
