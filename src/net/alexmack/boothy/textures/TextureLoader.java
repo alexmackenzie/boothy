@@ -21,7 +21,7 @@ public class TextureLoader {
 		this.window = window;
 	}
 	
-	private Texture process(Texture texture) {
+	protected Texture process(Texture texture) {
 		// Queue the binding so it can be loaded in the render thread.
 		window.queue(texture.getBinding());
 		return texture;
@@ -35,12 +35,32 @@ public class TextureLoader {
 		return fromImage(ImageIO.read(file));
 	}
 	
+	public Texture fromFileSafe(File file) {
+		try {
+			return fromImage(ImageIO.read(file));
+		}catch (IOException e) {
+			return Texture404.get(this);
+		}
+	}
+	
 	public Texture fromStream(InputStream stream) throws IOException {
 		return fromImage(ImageIO.read(stream));
 	}
 	
+	public Texture fromStreamSafe(InputStream stream) {
+		try {
+			return fromImage(ImageIO.read(stream));
+		}catch (IOException e) {
+			return Texture404.get(this);
+		}
+	}
+	
 	public Texture fromBytes(byte[] bytes) throws IOException {
 		return fromStream(new ByteArrayInputStream(bytes));
+	}
+	
+	public Texture fromBytesSafe(byte[] bytes) {
+		return fromStreamSafe(new ByteArrayInputStream(bytes));
 	}
 	
 }
