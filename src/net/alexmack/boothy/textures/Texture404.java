@@ -88,5 +88,10 @@ public class Texture404 extends Texture {
 	public void draw(int x, int y, int w, int h, int[] t) {
 		super.draw(x, y, w, h, Texture.TRANSLATION_NORMAL);
 	}
+	
+	@Override
+	public boolean is404() {
+		return true;
+	}
 
 }

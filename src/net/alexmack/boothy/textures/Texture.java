@@ -159,6 +159,10 @@ public class Texture {
 	public boolean isReady() {
 		return binding.isReady();
 	}
+	
+	public boolean is404() {
+		return false;
+	}
 
 	public TextureBinding getBinding() {
 		return binding;
