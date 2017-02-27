@@ -11,6 +11,7 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
+import net.alexmack.boothy.Boothy;
 import net.alexmack.boothy.Window;
 
 public class TextureLoader {
@@ -39,6 +40,7 @@ public class TextureLoader {
 		try {
 			return fromImage(ImageIO.read(file));
 		}catch (IOException e) {
+			Boothy.log(Boothy.LOG_ERROR, "Failed to load texture from \"" + file.getPath() + "\"!");
 			return Texture404.get(this);
 		}
 	}
@@ -51,6 +53,7 @@ public class TextureLoader {
 		try {
 			return fromImage(ImageIO.read(stream));
 		}catch (IOException e) {
+			Boothy.log(Boothy.LOG_ERROR, "Failed to load texture from stream!");
 			return Texture404.get(this);
 		}
 	}
