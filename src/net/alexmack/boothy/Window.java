@@ -7,14 +7,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
 import net.alexmack.boothy.input.KeyboardEvent;
 import net.alexmack.boothy.input.KeyboardHandler;
+import net.alexmack.boothy.input.MouseEvent;
+import net.alexmack.boothy.input.MouseHandler;
 
 public class Window {
 	
@@ -31,6 +35,9 @@ public class Window {
 	private long[] keyboard = new long[Keyboard.KEYBOARD_SIZE];
 	private char[] keyboardChars = new char[keyboard.length];
 	private KeyboardHandler keyboardHandler = null;
+	
+	private long[] mouse = null;
+	private MouseHandler mouseHandler = null;
 	
 	private volatile long frame = 0;
 	
@@ -84,8 +91,13 @@ public class Window {
 		
 		// Create a display with the default PixelFormat.
 		Display.create(new PixelFormat());
-		// Create the keyboard.
+		// Create the keyboard and mouse.
 		Keyboard.create();
+		Mouse.create();
+		
+		// Setup mouse data array.
+		mouse = new long[Mouse.getButtonCount()];
+		Arrays.fill(mouse, NODATA);
 		
 		while (running = (running && !Display.isCloseRequested())) {
 			long now = System.currentTimeMillis();
@@ -114,7 +126,7 @@ public class Window {
 			while (Keyboard.next()) {
 				// Don't process events if there's no handler.
 				if (keyboardHandler == null)
-					continue;
+					break;
 				
 				int key = Keyboard.getEventKey();
 				
@@ -137,6 +149,44 @@ public class Window {
 					
 					// Reset keyboard array.
 					keyboard[key] = NODATA;
+				}
+			}
+			
+			// Dispatch mouse events.
+			while (Mouse.next()) {
+				// Don't process events with no handler.
+				if (mouseHandler == null)
+					continue;
+				
+				int button = Mouse.getEventButton();
+				int x = Mouse.getEventX(), y = Mouse.getEventY();
+				
+				// Mouse events use bottom-left as (0, 0).
+				y = height - y;
+				
+				// Detect mouse movement.
+				if (button < 0) {
+					mouseHandler.onMove(new MouseEvent(-1, 0, x, y));
+					continue;
+				}
+				
+				long data = mouse[button];
+				
+				if (Mouse.getEventButtonState()) {
+					// Ignore button presses if they're already registered as
+					// having been pressed.
+					if (data == NODATA) {
+						mouse[button] = now;
+						mouseHandler.onButtonDown(new MouseEvent(button, NODATA, x, y));
+					}
+				}else{
+					mouseHandler.onButtonUp(new MouseEvent(button, NODATA, x, y));
+					
+					// Fire the click event.
+					if (data != NODATA) {
+						mouse[button] = NODATA;
+						mouseHandler.onButtonClicked(new MouseEvent(button, now - data, x, y));
+					}
 				}
 			}
 			
@@ -229,6 +279,10 @@ public class Window {
 	
 	public void setKeyboardHandler(KeyboardHandler handler) {
 		keyboardHandler = handler;
+	}
+	
+	public void setMouseHandler(MouseHandler handler) {
+		mouseHandler = handler;
 	}
 	
 	public void setFps(int fps) {

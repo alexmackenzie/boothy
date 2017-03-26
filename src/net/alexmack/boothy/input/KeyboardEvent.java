@@ -5,16 +5,15 @@ package net.alexmack.boothy.input;
 
 import org.lwjgl.input.Keyboard;
 
-public class KeyboardEvent {
+public class KeyboardEvent extends DurationEvent {
 
 	private int key;
 	private char character;
-	private long duration;
 	
 	public KeyboardEvent(int key, char character, long duration) {
+		super(duration);
 		this.key = key;
 		this.character = character;
-		this.duration = duration;
 	}
 	
 	public int getKey() {
@@ -27,10 +26,6 @@ public class KeyboardEvent {
 	
 	public char getCharacter() {
 		return character;
-	}
-	
-	public long getDuration() {
-		return duration;
 	}
 	
 }
