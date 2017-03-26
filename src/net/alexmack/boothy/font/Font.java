@@ -9,6 +9,14 @@ import net.alexmack.boothy.textures.Texture;
 
 public class Font {
 	
+	public static int width(int fcode) {
+		return fcode >>> 16;
+	}
+	
+	public static int height(int fcode) {
+		return fcode & 0xFFFF;
+	}
+	
 	private volatile Texture[] textures = new Texture[0];
 	
 	private Texture fallback;
@@ -19,13 +27,29 @@ public class Font {
 		this.gap = 1;
 	}
 	
-	public void draw(int x, int y, int size, char[] characters) {
+	public int draw(int x, int y, String text) {
+		return draw(x, y, 1, text.toCharArray());
+	}
+	
+	public int draw(int x, int y, int size, String text) {
+		return draw(x, y, size, text.toCharArray());
+	}
+	
+	public int draw(int x, int y, int size, char[] characters) {
+		int h = 0;
+		
 		for (char c : characters) {
 			Texture texture = get(c);
 			
-			texture.draw(x, y);
-			x += texture.getWidth() + gap;
+			int cW = texture.getWidth() * size;
+			int cH = texture.getHeight() * size;
+			
+			texture.draw(x, y, cW, cH);
+			x += cW + (gap * size);
+			h = cH > h ? cH : h;
 		}
+		
+		return (x << 16) & h;
 	}
 	
 	public Texture get(char character) {
@@ -51,6 +75,7 @@ public class Font {
 			textures = texturesNew;
 		}
 		
+		this.
 		textures[character] = texture;
 		return overwrite;
 	}
@@ -65,6 +90,10 @@ public class Font {
 	
 	public boolean hasCharacter(char character) {
 		return get(character) != fallback;
+	}
+	
+	public int getGap() {
+		return gap;
 	}
 	
 }
