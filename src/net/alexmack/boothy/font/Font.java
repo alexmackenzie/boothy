@@ -59,6 +59,15 @@ public class Font {
 		return textures[character];
 	}
 	
+	public int getWidth(String string, int size) {
+		int width = 0;
+		
+		for (char c : string.toCharArray())
+			width += (get(c).getWidth() + gap) * size;
+		
+		return width;
+	}
+	
 	public boolean addCharacter(char character, Texture texture) {
 		boolean overwrite = hasCharacter(character);
 		
