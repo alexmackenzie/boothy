@@ -34,6 +34,31 @@ public class Texture {
 			1, 3
 	};
 	
+	public static final int[] TRANSLATION_CLOCKWISE_90 = new int[] {
+			0, 3,
+			0, 2,
+			1, 2,
+			1, 3
+	};
+	
+	public static final int[] TRANSLATION_CLOCKWISE_180 = new int[] {
+			1, 3,
+			0, 3,
+			0, 2,
+			1, 2
+	};
+	
+	public static final int[] TRANSLATION_CLOCKWISE_270 = new int[] {
+			1, 2,
+			1, 3,
+			0, 3,
+			0, 2
+	};
+	
+	public static final int[] TRANSLATION_ACLOCKWISE_90 = TRANSLATION_CLOCKWISE_270;
+	public static final int[] TRANSLATION_ACLOCKWISE_180 = TRANSLATION_CLOCKWISE_180;
+	public static final int[] TRANSLATION_ACLOCKWISE_270 = TRANSLATION_CLOCKWISE_90;
+	
 	// The default texture coordinates, encompassing the entire image.
 	private static final float[] DEFAULT_COORDINATES = new float[] {
 			// X origin and end.
