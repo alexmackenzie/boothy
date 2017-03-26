@@ -1,3 +1,6 @@
+/* 
+ * Copyright 2017 Alexander Mackenzie
+ */
 package net.alexmack.boothy.input;
 
 import org.lwjgl.input.Keyboard;
