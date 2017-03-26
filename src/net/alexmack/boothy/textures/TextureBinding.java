@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 public class TextureBinding implements Runnable {
 
@@ -66,6 +67,8 @@ public class TextureBinding implements Runnable {
 		// Bind the buffer to OpenGL.
 		this.gl = GL11.glGenTextures();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, gl);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_BASE_LEVEL, 0);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, 0);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, PIXEL_FORMAT_INTERNAL, width, height, 0, PIXEL_FORMAT, GL11.GL_UNSIGNED_BYTE, buffer);
 		
 		// Dereference the image so the memory can be reclaimed.
