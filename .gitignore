@@ -12,3 +12,4 @@ natives
 
 # Ignore test files.
 /src/net/alexmack/boothy/testing/
+/font/
