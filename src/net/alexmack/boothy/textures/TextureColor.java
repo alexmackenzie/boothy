@@ -1,8 +1,15 @@
+/* 
+ * Copyright 2017 Alexander Mackenzie
+ */
 package net.alexmack.boothy.textures;
 
 import org.lwjgl.opengl.GL11;
 
 public class TextureColor {
+	
+	public static void push(int rgb) {
+		push(rgb >>> 16, (rgb >>> 8) & 0xFF, rgb & 0xFF);
+	}
 	
 	public static void push(int r, int g, int b) {
 		push((float) r / 255F, (float) g / 255F, (float) b / 255F);
