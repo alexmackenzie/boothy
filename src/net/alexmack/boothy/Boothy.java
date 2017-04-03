@@ -5,7 +5,7 @@ package net.alexmack.boothy;
 
 public class Boothy {
 
-	public static final String VERSION = "PRE-ALPHA";
+	public static final String VERSION = "ALPHA 1.0.0";
 	public static final String NAME = "Boothy " + VERSION;
 	
 	public static final int LOG_DEBUG = 0;

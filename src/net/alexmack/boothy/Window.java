@@ -19,6 +19,7 @@ import net.alexmack.boothy.input.KeyboardEvent;
 import net.alexmack.boothy.input.KeyboardHandler;
 import net.alexmack.boothy.input.MouseEvent;
 import net.alexmack.boothy.input.MouseHandler;
+import net.alexmack.boothy.input.WindowHandler;
 
 public class Window {
 	
@@ -38,6 +39,8 @@ public class Window {
 	
 	private long[] mouse = null;
 	private MouseHandler mouseHandler = null;
+	
+	private WindowHandler handler = null;
 	
 	private volatile long frame = 0;
 	
@@ -196,6 +199,9 @@ public class Window {
 	}
 	
 	private void setupMatrix() {
+		int widthOld = width;
+		int heightOld = height;
+		
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, width = Display.getWidth(), height = Display.getHeight(), 0, -1, 1);
@@ -207,6 +213,10 @@ public class Window {
 		// Enable 2D textures.
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
+		
+		// Inform the handler if the window was resized.
+		if ((width != widthOld || height != heightOld) && handler != null)
+			handler.onResize(this, width, height);
 	}
 	
 	/**
@@ -285,8 +295,16 @@ public class Window {
 		mouseHandler = handler;
 	}
 	
+	public void setHandler(WindowHandler handler) {
+		this.handler = handler;
+	}
+	
 	public void setFps(int fps) {
 		this.fps = fps;
+	}
+	
+	public void setResizeable(boolean resizeable) {
+		Display.setResizable(resizeable);
 	}
 	
 	public int getWidth() {
