@@ -1,6 +1,3 @@
-# Ignore generated .class files.
-/bin/
-
 # Ignore Eclipse files.
 .project
 .classpath
@@ -13,3 +10,7 @@ natives
 # Ignore test files.
 /src/net/alexmack/boothy/testing/
 /font/
+/target/
+
+# Ignore build files.
+target/
